@@ -45,7 +45,7 @@ export default (props: Props) => {
             <IconEnv />
             <span>System Role:</span>
           </div>
-          <p class="my-2 leading-normal text-slate text-sm op-60">Gently instruct the assistant and set the behavior of the assistant.</p>
+          <p class="my-2 leading-normal text-slate text-sm op-60">通过System Prompt指导助手并设定助手的行为。</p>
           <div>
             <textarea
               ref={systemInputRef!}
