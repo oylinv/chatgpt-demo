@@ -3,6 +3,8 @@ import { createSignal, Index, Show } from 'solid-js'
 import IconClear from './icons/Clear'
 import MessageItem from './MessageItem'
 import SystemRoleSettings from './SystemRoleSettings'
+import _ from 'lodash'
+import { generateSignature } from '@/utils/auth'
 
 export default () => {
   let inputRef: HTMLTextAreaElement
@@ -30,7 +32,12 @@ export default () => {
     ])
     requestWithLatestMessage()
   }
-
+  const throttle =_.throttle(function(){
+    window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})
+  }, 300, {
+    leading: true,
+    trailing: false
+  })
   const requestWithLatestMessage = async () => {
     setLoading(true)
     setCurrentAssistantMessage('')
@@ -44,10 +51,16 @@ export default () => {
           content: currentSystemRoleSettings(),
         })
       }
+      const timestamp = Date.now()
       const response = await fetch('/api/generate', {
         method: 'POST',
         body: JSON.stringify({
           messages: requestMessageList,
+          time: timestamp,
+          sign: await generateSignature({
+            t: timestamp,
+            m: requestMessageList?.[requestMessageList.length - 1]?.content || '',
+          }),
         }),
         signal: controller.signal,
       })
@@ -72,7 +85,7 @@ export default () => {
           if (char) {
             setCurrentAssistantMessage(currentAssistantMessage() + char)
           }
-          window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})
+          throttle()
         }
         done = readerDone
       }
